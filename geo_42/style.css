@@ -1,0 +1,357 @@
+:root {
+  --primary-color: #1b5e20;   /* เขียวเข้ม - ใช้เป็นสีหลัก */
+  --secondary-color: #259e2b; /* เขียวกลาง - ใช้เป็นสีรอง */
+  --accent-color: #eeff00;    /* เขียวกลางอ่อน - ใช้เป็นสีเน้น */
+  --light-color: #ddd600;     /* เขียวอ่อน - ใช้เป็นสีสว่าง */
+  --dark-color: #d5b70e;      /* เขียวเข้มกว่า - ใช้เป็นสีเข้ม */
+}
+/* ----------------- General ----------------- */
+body, html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ----------------- Container ----------------- */
+.container-fluid {
+  padding: 0 15px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ----------------- Header - ปรับให้เล็กและพอดี ----------------- */
+.header {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+  padding: 15px 20px; /* ลด padding */
+  border-radius: 0 0 12px 12px; /* ลดความโค้ง */
+  margin-bottom: 20px; /* ลด margin */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* เงาเบาลง */
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px; /* ลดความสูง */
+  background: linear-gradient(90deg, var(--accent-color), var(--secondary-color), var(--light-color));
+}
+
+.header h2 {
+  margin: 0 0 5px 0; /* ลด margin */
+  font-weight: 600; /* ลดความหนา */
+  font-size: 1.5rem; /* ลดขนาดฟอนต์ */
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1); /* เงาเบาลง */
+}
+
+.header p {
+  margin: 5px 0 0; /* ลด margin */
+  opacity: 0.9;
+  font-size: 0.9rem; /* ลดขนาดฟอนต์ */
+}
+
+/* ----------------- Map Container ----------------- */
+.row {
+  margin: 0;
+  width: 100%;
+}
+
+.col-md-12 {
+  padding: 0;
+}
+
+.card {
+  border: none;
+  border-radius: 12px; /* ลดความโค้ง */
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* เงาเบาลง */
+  overflow: hidden;
+  margin-bottom: 15px; /* ลด margin */
+  background: white;
+}
+
+.card-body {
+  padding: 0 !important;
+}
+
+#map {
+  height: 75vh; /* เพิ่มความสูงของแผนที่เล็กน้อย */
+  width: 100%;
+  border-radius: 12px; /* ลดความโค้ง */
+  z-index: 1;
+}
+
+/* ----------------- Hide Footer ----------------- */
+.footer {
+  display: none;
+}
+
+/* ----------------- Popup ----------------- */
+.leaflet-popup-content-wrapper {
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+  background: white;
+}
+
+.leaflet-popup-content {
+  margin: 15px;
+  font-size: 13px;
+  line-height: 1.4;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.leaflet-popup-tip {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* ----------------- Station Popup ----------------- */
+.station-popup h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary-color);
+  border-bottom: 1px solid var(--secondary-color);
+  padding-bottom: 4px;
+}
+
+.station-popup p {
+  margin: 4px 0;
+  font-size: 12px;
+  color: var(--dark-color);
+}
+
+.station-popup strong {
+  color: var(--primary-color);
+}
+
+.rain-value {
+  font-weight: 600;
+  color: var(--accent-color);
+}
+
+/* ----------------- Custom Marker ----------------- */
+.custom-marker.rain-marker {
+  font-size: 10px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* ----------------- Legend ----------------- */
+.legend {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 12px 15px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  line-height: 1.4;
+  color: var(--dark-color);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  max-width: 200px;
+}
+
+.legend h4 {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary-color);
+  text-align: center;
+  border-bottom: 1px solid var(--secondary-color);
+  padding-bottom: 6px;
+}
+
+.legend i {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  border-radius: 3px;
+  vertical-align: middle;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.legend p {
+  margin: 5px 0;
+  font-size: 12px;
+  color: var(--dark-color);
+}
+
+/* ----------------- Layer Control ----------------- */
+.leaflet-control-layers {
+  border-radius: 8px !important;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1) !important;
+  border: none !important;
+}
+
+.leaflet-control-layers-toggle {
+  background-color: white !important;
+  border-radius: 5px !important;
+}
+
+.leaflet-control-layers-list {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 12px;
+}
+
+/* ----------------- Scale Control ----------------- */
+.leaflet-control-scale {
+  border-radius: 5px !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: none !important;
+  font-size: 10px;
+}
+
+/* ----------------- Loading ----------------- */
+.loading {
+  position: absolute;
+  top: 50%; 
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 20px 25px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+  text-align: center;
+  font-weight: 500;
+  color: var(--primary-color);
+  border: 1px solid var(--secondary-color);
+  font-size: 14px;
+}
+
+/* ----------------- Responsive Design ----------------- */
+@media (max-width: 1200px) {
+  .container-fluid {
+    padding: 0 12px;
+    max-width: 95%;
+  }
+}
+
+@media (max-width: 768px) {
+  .container-fluid {
+    padding: 0 10px;
+    max-width: 100%;
+  }
+  
+  #map {
+    height: 65vh;
+    border-radius: 10px;
+  }
+  
+  .header {
+    padding: 12px 15px;
+    border-radius: 0 0 10px 10px;
+    margin-bottom: 15px;
+  }
+  
+  .header h2 {
+    font-size: 1.3rem;
+  }
+  
+  .header p {
+    font-size: 0.8rem;
+  }
+  
+  .card {
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+  
+  .legend {
+    padding: 10px 12px;
+    max-width: 180px;
+  }
+  
+  .legend h4 {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container-fluid {
+    padding: 0 8px;
+  }
+  
+  #map {
+    height: 60vh;
+  }
+  
+  .header {
+    padding: 10px 12px;
+  }
+  
+  .header h2 {
+    font-size: 1.2rem;
+  }
+  
+  .header p {
+    font-size: 0.75rem;
+  }
+  
+  .legend {
+    max-width: 160px;
+    padding: 8px 10px;
+  }
+  
+  .legend h4 {
+    font-size: 11px;
+  }
+  
+  .legend p {
+    font-size: 11px;
+  }
+}
+
+/* ----------------- Scrollbar Styling ----------------- */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+}
+
+/* ----------------- Animation ----------------- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header, .card {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+/* ----------------- Ensure No Horizontal Scroll ----------------- */
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.container-fluid, .row, .col-md-12 {
+  max-width: 100%;
+  box-sizing: border-box;
+}

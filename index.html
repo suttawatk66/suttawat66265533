@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio - นายศุทธวัต คงภัทรนนท์</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #e2e2d5 0%, #c8d5b9 100%);
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ส่วนซ้าย - ข้อมูลส่วนตัว */
+.left-panel {
+  width: 30%;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding: 25px;
+  gap: 25px;
+  box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+  overflow-y: auto;
+}
+
+/* ส่วนขวา - เนื้อหาหลัก */
+.right-panel {
+  width: 70%;
+  background: #a0b7a9;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+}
+
+/* ส่วนโปรไฟล์ */
+.profile-section {
+  text-align: center;
+  padding: 20px 0;
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 10px;
+}
+
+.profile-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 5px solid #4caf50;
+  margin: 0 auto 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.profile-name {
+  color: #2e7d32;
+  font-size: 1.8em;
+  margin-bottom: 5px;
+}
+
+.profile-info {
+  color: #555;
+  font-size: 1.1em;
+  margin-bottom: 15px;
+}
+
+/* แกลเลอรี่รูปภาพ */
+.image-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.gallery-item {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+  aspect-ratio: 1;
+  cursor: pointer;
+}
+
+.gallery-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+}
+
+.gallery-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.gallery-item:hover .gallery-image {
+  transform: scale(1.1);
+}
+
+.image-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  color: white;
+  padding: 20px 15px 15px;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.gallery-item:hover .image-overlay {
+  transform: translateY(0);
+}
+
+.image-title {
+  font-weight: bold;
+  font-size: 1.1em;
+  margin-bottom: 5px;
+}
+
+.image-description {
+  font-size: 0.85em;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+/* เมนูนำทาง */
+.navigation-menu {
+  height: 12%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-bottom: 2px solid #8cb48c;
+  background: linear-gradient(90deg, #e6f4ea, #c8e6c9);
+  padding: 0 20px;
+}
+
+.menu-button {
+  padding: 12px 20px;
+  background: #c8e6c9;
+  border: none;
+  cursor: pointer;
+  color: #2e7d32;
+  font-weight: bold;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-size: 1em;
+  box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  margin: 0 5px;
+  justify-content: center;
+}
+
+.menu-button:hover {
+  background: #a5d6a7;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+}
+
+.menu-button.active {
+  background: #4caf50;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+}
+
+/* พื้นที่แสดงเนื้อหา */
+.content-area {
+  flex: 1;
+  position: relative;
+  background: white;
+  overflow: hidden;
+}
+
+.content-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: white;
+}
+
+/* ซ่อนองค์ประกอบ */
+.hidden {
+  display: none;
+}
+
+/* การออกแบบสำหรับหน้าจอขนาดเล็ก */
+@media (max-width: 1024px) {
+  body {
+    flex-direction: column;
+    height: auto;
+    overflow-y: auto;
+  }
+  
+  .left-panel, .right-panel {
+    width: 100%;
+  }
+  
+  .left-panel {
+    padding: 20px;
+  }
+  
+  .navigation-menu {
+    height: auto;
+    padding: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .menu-button {
+    flex: 1 1 calc(50% - 10px);
+    min-width: 140px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ส่วนซ้าย - ข้อมูลส่วนตัวและรูปภาพ -->
+<div class="left-panel">
+  <!-- ข้อมูลโปรไฟล์ -->
+  <div class="profile-section">
+    <img src="nu.jpg" alt="รูปโปรไฟล์" class="profile-image">
+    <h1 class="profile-name">นายศุทธวัต คงภัทรนนท์</h1>
+    <p class="profile-info">66265533 - คณะเกษตรศาสตร์ สาขาภูมิศาสตร์</p>
+    <p class="profile-info">มหาวิทยาลัยนเรศวร</p>
+  </div>
+
+  <!-- แกลเลอรี่รูปภาพ -->
+  <div class="image-gallery">
+    <!-- รูปที่ 1 - ข้อมูลนิสิต -->
+    <div class="gallery-item" onclick="showPage('student')">
+      <img src="1.png" alt="ข้อมูลนิสิต" class="gallery-image">
+      <div class="image-overlay">
+        <div class="image-title">ข้อมูลนิสิต AGI</div>
+        <div class="image-description">ข้อมูลนิสิตคณะเกษตรศาสตร์</div>
+      </div>
+    </div>
+    
+    <!-- รูปที่ 2 - สถานที่ท่องเที่ยว -->
+    <div class="gallery-item" onclick="showPage('tourism')">
+      <img src="2.png" alt="สถานที่ท่องเที่ยว" class="gallery-image">
+      <div class="image-overlay">
+        <div class="image-title">สถานที่ท่องเที่ยว</div>
+        <div class="image-description">แนะนำสถานที่ท่องเที่ยวในประเทศไทย</div>
+      </div>
+    </div>
+    
+    <!-- รูปที่ 3 - Web ตามคู่มือ -->
+    <div class="gallery-item" onclick="showPage('map')">
+      <img src="3.png" alt="Web ตามคู่มือ" class="gallery-image">
+      <div class="image-overlay">
+        <div class="image-title">Web ตามคู่มือ</div>
+        <div class="image-description">ผลงานการพัฒนาเว็บตามคู่มือเรียน</div>
+      </div>
+    </div>
+    
+    <!-- รูปที่ 4 - รายละเอียด -->
+    <div class="gallery-item" onclick="showPage('detail')">
+      <img src="4.png" alt="รายละเอียด" class="gallery-image">
+      <div class="image-overlay">
+        <div class="image-title">รายละเอียด</div>
+        <div class="image-description">ข้อมูลส่วนตัวและตารางเรียน</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ส่วนขวา - เมนูและเนื้อหา -->
+<div class="right-panel">
+  <!-- เมนูนำทาง -->
+  <div class="navigation-menu">
+    <button class="menu-button active" onclick="showPage('student')">
+      <i class="fas fa-users"></i> AGI
+    </button>
+    <button class="menu-button" onclick="showPage('tourism')">
+      <i class="fas fa-map-marked-alt"></i> สถานที่ท่องเที่ยว
+    </button>
+    <button class="menu-button" onclick="showPage('map')">
+      <i class="fas fa-map"></i> Web ตามคู่มือ
+    </button>
+    <button class="menu-button" onclick="showPage('detail')">
+      <i class="fas fa-user-graduate"></i> รายละเอียด
+    </button>
+  </div>
+
+  <!-- พื้นที่แสดงเนื้อหา -->
+  <div class="content-area">
+    <!-- หน้า AGI -->
+    <iframe id="student-frame" src="student.html" class="content-frame"></iframe>
+    
+    <!-- หน้าสถานที่ท่องเที่ยว -->
+    <iframe id="tourism-frame" src="tourism.html" class="content-frame hidden"></iframe>
+    
+    <!-- หน้า Web ตามคู่มือ -->
+    <iframe id="map-frame" src="geo_42/my_first_map.html" class="content-frame hidden"></iframe>
+    
+    <!-- หน้ารายละเอียด -->
+    <iframe id="detail-frame" src="details.html" class="content-frame hidden"></iframe>
+  </div>
+</div>
+
+<script>
+// ฟังก์ชันสำหรับเปลี่ยนหน้าเว็บ
+function showPage(pageId) {
+  // ซ่อนทุก iframe
+  const allFrames = document.querySelectorAll('.content-frame');
+  allFrames.forEach(frame => {
+    frame.classList.add('hidden');
+  });
+  
+  // อัพเดทสถานะปุ่มเมนู
+  const allButtons = document.querySelectorAll('.menu-button');
+  allButtons.forEach(button => {
+    button.classList.remove('active');
+  });
+  
+  // แสดงหน้าเว็บที่เลือกและอัพเดทปุ่มเมนู
+  switch(pageId) {
+    case 'student':
+      document.getElementById('student-frame').classList.remove('hidden');
+      document.querySelector('.menu-button:nth-child(1)').classList.add('active');
+      break;
+    case 'tourism':
+      document.getElementById('tourism-frame').classList.remove('hidden');
+      document.querySelector('.menu-button:nth-child(2)').classList.add('active');
+      break;
+    case 'map':
+      document.getElementById('map-frame').classList.remove('hidden');
+      document.querySelector('.menu-button:nth-child(3)').classList.add('active');
+      break;
+    case 'detail':
+      document.getElementById('detail-frame').classList.remove('hidden');
+      document.querySelector('.menu-button:nth-child(4)').classList.add('active');
+      break;
+  }
+}
+
+// เริ่มต้นแสดงหน้าแรกเมื่อโหลดหน้าเว็บ
+document.addEventListener('DOMContentLoaded', function() {
+  showPage('student');
+});
+
+// ฟังก์ชันรีเฟรช iframe (ใช้กรณีต้องการโหลดหน้าเว็บใหม่)
+function refreshFrame(frameId) {
+  const frame = document.getElementById(frameId);
+  frame.src = frame.src;
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web GIS</title>
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Leaflet AJAX -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-ajax/2.1.0/leaflet.ajax.min.js"></script>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<!-- Custom CSS -->
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div class="container-fluid">
+  <div class="header">
+    <h2><i class="fas fa-map-marked-alt"></i> WEB GIS</h2>
+    <p>นายศุทธวัต คงภัทรนนท์ 66265533</p>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card mb-4 border-0 shadow">
+        <div class="card-body p-0">
+          <div id="map"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<script>
+// ----------------- Base Map -----------------
+var map = L.map('map').setView([16.744,100.191],15);
+
+var google_map = L.tileLayer('https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}', {
+  maxZoom:18,
+  subdomains:['mt0','mt1','mt3','mt4']
+}).addTo(map);
+
+var openstreetmap = L.tileLayer('http://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom:18
+});
+
+var EsriWorldStreetMap = L.tileLayer(
+  'http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+  {maxZoom:18}
+);
+
+var EsriWorldImagery = L.tileLayer(
+  'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  {maxZoom:18}
+);
+
+// ----------------- Shapes -----------------
+var circle = L.circle([16.746000448242338, 100.19590172295345], {radius:200});
+
+var polyline = L.polyline([
+  [16.742, 100.180],
+  [16.735, 100.189],
+  [16.735, 100.190],
+  [16.739, 100.189]
+]);
+
+var polygon = L.polygon([
+  [16.752, 100.176],
+  [16.743, 100.176],
+  [16.743, 100.190],
+  [16.752, 100.190]
+]);
+
+// ----------------- Custom Marker -----------------
+var building = L.icon({
+  iconUrl: 'images/building.jpg',
+  iconSize: [50, 50],
+  iconAnchor: [19, 38],
+  popupAnchor: [0, -38]
+});
+
+var marker = L.marker([16.746000448242338, 100.19590172295345], { icon: building })
+  .bindPopup("คณะเกษตรศาสตร์ฯ มหาวิทยาลัยนเรศวร");
+
+// ----------------- Popup Function -----------------
+function popUp(f, l){
+  var out = [];
+  if (f.properties){
+    for(key in f.properties){
+      out.push(key+": "+f.properties[key]);
+    }
+    l.bindPopup(out.join("<br />"));
+  }
+}
+
+// ----------------- GeoJSON & SQL -----------------
+var ThaiProvJSON = new L.GeoJSON.AJAX(['thailand_province.geojson'], {onEachFeature:popUp});
+
+var jsonProv = L.geoJSON(null, { onEachFeature: popUp });
+$.ajax({
+  dataType: "json",
+  url: "json_sql.php",
+  success: function(data) {
+    jsonProv.addData(data);
+  },
+  error: function(err) {
+    console.log('error geojson', err);
+  }
+});
+
+// ----------------- WMS Layers -----------------
+var plk_amphoe = L.tileLayer.wms('http://localhost:8080/geoserver/utt/wms?', {
+  layers: 'utt:district_style',
+  format: 'image/png',
+  transparent:true,
+  tiled: 'true'
+}); 
+
+var utt_road = L.tileLayer.wms('http://localhost:8080/geoserver/utt/wms?', {
+  layers: 'utt:road_style',
+  format: 'image/png',
+  transparent:true,
+  tiled: 'true'
+}); 
+
+var utt_gcp = L.tileLayer.wms('http://localhost:8080/geoserver/utt/wms?', {
+  layers: 'utt:gcp_style',
+  format: 'image/png',
+  transparent:true,
+  tiled: 'true'
+}); 
+
+// ----------------- Click Event (Search By Distance) -----------------
+var marker_arr=[];
+var showpoint = null;
+
+map.on("click", function(e){
+  if(marker_arr.length > 0){
+    for(i=0;i<marker_arr.length;i++){
+      map.removeLayer(marker_arr[i]);
+    }
+  }
+
+  var ct="<center><h3>Search By Distance</h3></center>";
+  ct +="Lat: <input type='number' id='lat' value=" +e.latlng.lat + ">";
+  ct +="<br>Lng: <input type='number' id='lng' value=" +e.latlng.lng + "><br>";
+  ct +="Distance: <input type='text' id='distance'>";
+  ct +="<br><br><center><button onclick='sendtodb();'>Submit</button></center>";
+
+  var marker=new L.Marker([e.latlng.lat,e.latlng.lng])
+    .addTo(map).bindPopup(ct).openPopup();
+
+  marker_arr.push(marker);
+});
+
+// ----------------- DblClick & RightClick Event (Insert to DB) -----------------
+var marker_arr2=[];
+
+map.on("dblclick", function(e){
+  if(marker_arr2.length > 0){
+    for(i=0;i<marker_arr2.length;i++){
+      map.removeLayer(marker_arr2[i]);
+    }
+  }
+
+  var ct="<center><h3>Add clicked location data</h3></center>";
+  ct +="Lat: <input type='number' id='lat' value=" +e.latlng.lat + ">";
+  ct +="<br>Lng: <input type='number' id='lng' value=" +e.latlng.lng + "><br>";
+  ct +="Name: <input type='text' id='name'>";
+  ct +="<br><br><center><button onclick='inserttodb();'>Submit</button></center>";
+
+  var marker1=new L.Marker([e.latlng.lat, e.latlng.lng])
+    .addTo(map).bindPopup(ct).openPopup();
+
+  marker_arr2.push(marker1);
+});
+
+map.on("contextmenu", function(e){
+  if(marker_arr2.length > 0){
+    for(i=0;i<marker_arr2.length;i++){
+      map.removeLayer(marker_arr2[i]);
+    }
+  }
+});
+
+
+// Thaiwater API Layer
+var thaiwaterLayer = L.layerGroup();
+
+// ฟังก์ชันสร้าง marker สำหรับข้อมูลน้ำฝน
+function createRainMarker(data, layer, isProvinceData = false) {
+  if(data.station && data.station.tele_station_lat && data.station.tele_station_long) {
+    var lat = parseFloat(data.station.tele_station_lat);
+    var lng = parseFloat(data.station.tele_station_long);
+    
+    if(!isNaN(lat) && !isNaN(lng)) {
+      // กำหนดสีตามปริมาณน้ำฝน
+      var rainValue = data.rain_24h || 0;
+      var markerColor;
+      
+      if (rainValue >= 100) markerColor = '#e74c3c'; // สีแดงสำหรับฝนมาก
+      else if (rainValue >= 50) markerColor = '#f39c12'; // สีส้มสำหรับฝนปานกลาง
+      else if (rainValue > 0) markerColor = '#2ecc71'; // สีเขียวสำหรับฝนน้อย
+      else markerColor = '#3498db'; // สีน้ำเงินสำหรับไม่มีข้อมูลฝน
+      
+      // สร้าง custom marker icon
+      var markerIcon = L.divIcon({
+        className: 'custom-marker rain-marker',
+        html: `<div style="background-color: ${markerColor}; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.3); border: 2px solid white;">${rainValue > 0 ? rainValue : '0'}</div>`,
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+      });
+      
+      // สร้าง popup content
+      var popup = `<div class="station-popup">
+        <h4><i class="fas fa-cloud-rain" style="color: ${markerColor}"></i> ${data.station.tele_station_name.th || 'ไม่ระบุชื่อสถานี'}</h4>
+        <p><strong><i class="fas fa-tint"></i> ปริมาณน้ำฝน:</strong> <span class="rain-value">${rainValue} มม.</span></p>
+        <p><strong><i class="fas fa-calendar-alt"></i> วันที่:</strong> ${data.rainfall_datetime || 'ไม่ระบุ'}</p>
+        <p><strong><i class="fas fa-map-marker-alt"></i> ที่ตั้ง:</strong> ${data.geocode ? data.geocode.province_name.th : 'ไม่ระบุ'} > ${data.geocode ? data.geocode.amphoe_name.th : 'ไม่ระบุ'} > ${data.geocode ? data.geocode.tumbon_name.th : 'ไม่ระบุ'}</p>
+        <p><strong><i class="fas fa-building"></i> หน่วยงาน:</strong> ${data.agency ? data.agency.agency_name.th : 'ไม่ระบุ'}</p>
+        <p><strong><i class="fas fa-water"></i> ลุ่มน้ำ:</strong> ${data.basin ? data.basin.basin_name.th : 'ไม่ระบุ'}</p>
+      </div>`;
+      
+      // สร้าง marker และเพิ่มลงใน layer
+      L.marker([lat, lng], {icon: markerIcon})
+        .bindPopup(popup)
+        .addTo(layer);
+    }
+  }
+}
+
+// โหลดข้อมูลจาก API จังหวัดนครสวรรค์
+$('#loadingIndicator').removeClass('d-none');
+$.getJSON("https://api-v3.thaiwater.net/api/v1/thaiwater30/public/thailand_main_rain?province_code=60", function(res){
+  $('#loadingIndicator').addClass('d-none');
+  if(res.result === "OK"){
+    res.data.forEach(function(d){
+      createRainMarker(d, thaiwaterLayer, true);
+    });
+  }
+});
+
+// Rain 24h Layer (ทั่วประเทศ)
+var rain24hLayer = L.layerGroup();
+$('#loadingIndicator').removeClass('d-none');
+$.getJSON("https://api-v3.thaiwater.net/api/v1/thaiwater30/public/rain_24h", function(res){
+  $('#loadingIndicator').addClass('d-none');
+  if(res.result === "OK"){
+    res.data.forEach(function(d){
+      createRainMarker(d, rain24hLayer, false);
+    });
+  }
+});
+
+// ----------------- Layer Control -----------------
+var baseLayers={
+  "Google_map":google_map,
+  "Openstreetmap":openstreetmap,
+  "EsriWorldStreetMap":EsriWorldStreetMap,
+  "EsriWorldImagery":EsriWorldImagery
+};
+
+var overlays={
+  "จุด":marker,
+  "เส้น":polyline,
+  "สี่เหลี่ยม":polygon,
+  "วงกลม":circle,
+  "ขอบเขตอำเภอ GeoJSON file": ThaiProvJSON,
+  "ขอบเขตอำเภอจ. GeoServer": plk_amphoe,
+  "ถนน utt ": utt_road,
+  "gcp utt ": utt_gcp,
+  "สถานีตรวจวัดน้ำ (นครสวรรค์)": thaiwaterLayer,
+  "ฝน 24 ชม. (ทั่วประเทศ)": rain24hLayer,
+  "ขอบเขตอำเภอ JSON SQL": jsonProv
+};
+
+L.control.layers(baseLayers,overlays).addTo(map);
+
+// ----------------- Function ส่งไป DB -----------------
+function sendtodb(){
+  if (showpoint != null){
+    map.removeLayer(showpoint);
+  }
+
+  var lat = document.getElementById("lat").value;
+  var lng = document.getElementById("lng").value;
+  var distance = document.getElementById("distance").value;
+
+  console.log("Lat:", lat, "Lng:", lng, "Dist:", distance);
+
+  $.ajax({
+    url: "query.php",
+    type: "GET",
+    dataType: "json",
+    data: {lat: lat, lng: lng, distance: distance},
+    success: function(data) {
+      console.log("response:", data);
+      showpoint = L.geoJSON(data).addTo(map);
+    },
+    error: function(err) {
+      console.log("error query:", err);
+    }
+  });
+}
+
+function inserttodb(){
+  var lat = document.getElementById("lat").value;
+  var lng = document.getElementById("lng").value;
+  var name = document.getElementById("name").value;
+
+  console.log("Insert Lat:", lat, "Lng:", lng, "Name:", name);
+
+  $.ajax({
+    url: "insert.php",
+    type: "POST",
+    data: {lat: lat, lng: lng, name: name},
+    success: function(res){
+      alert("Data inserted successfully!");
+    },
+    error: function(err){
+      console.log("insert error:", err);
+    }
+  });
+}
+
+
+L.control.scale({metric: true, imperial: false, position: 'bottomright'}).addTo(map);
+
+var legend = L.control({position: 'bottomleft'});
+legend.onAdd = function(map) {
+  var div = L.DomUtil.create('div', 'legend');
+  div.innerHTML = `
+    <h4>คำอธิบายสัญลักษณ์</h4>
+    <p><i style="background: #2ecc71"></i> น้ำฝน 0.1-49.9 มม.</p>
+    <p><i style="background: #f39c12"></i> น้ำฝน 50-99.9 มม.</p>
+    <p><i style="background: #e74c3c"></i> น้ำฝน 100 มม.ขึ้นไป</p>
+    <p><i style="background: #3498db"></i> ไม่มีข้อมูลน้ำฝน</p>
+  `;
+  return div;
+};
+legend.addTo(map);
+
+</script>
+</html>
